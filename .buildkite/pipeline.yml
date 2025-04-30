@@ -3,9 +3,10 @@ steps:
     plugins:
       docker#v3.8.0:
         image: "python:3.13"
-        command: >
-          sh -c "pip install . && python -c 'from loremipsum import sentence; print(sentence(max_char=20))' > result.txt"
+        command:
+          - "sh"
+          - "-c"
+          - "pip install . && python -c 'from loremipsum import sentence; print(sentence(max_char=20))' > result.txt"
 
   - label: "Annotate result"
     command: buildkite-agent annotate --style "info" --context "sentence" "$(cat result.txt)"
-
