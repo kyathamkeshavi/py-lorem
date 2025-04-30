@@ -1,22 +1,11 @@
 steps:
-  - label: ":snake: Run sentence"
+  - label: "Run Python in Docker"
     plugins:
-      - docker#v3.8.0:
-          image: python:3.13
-          always-pull: true
-    commands:
-      - pip install --upgrade pip
-      - pip install .
-      - python -c "from loremipsum import sentence; print(sentence(max_char=20))" > result.txt
-      - buildkite-agent annotate --style "info" --context "sentence" "$(cat result.txt)"
+      docker#v3.8.0:
+        image: "python:3.13"
+        command: >
+          sh -c "pip install . && python -c 'from loremipsum import sentence; print(sentence(max_char=20))' > result.txt"
 
-  - label: ":scroll: Run paragraph"
-    depends_on: "~:snake: Run sentence"
-    plugins:
-      - docker#v3.8.0:
-          image: python:3.13
-    commands:
-      - pip install --upgrade pip
-      - pip install .
-      - python -c "from loremipsum import paragraph; print(paragraph(max_char=100))" > paragraph.txt
-      - buildkite-agent annotate --style "info" --context "paragraph" "$(cat paragraph.txt)"
+  - label: "Annotate result"
+    command: buildkite-agent annotate --style "info" --context "sentence" "$(cat result.txt)"
+
