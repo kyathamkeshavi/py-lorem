@@ -7,6 +7,10 @@ steps:
           - "sh"
           - "-c"
           - "pip install . && python -c 'from loremipsum import sentence; print(sentence(max_char=20))' > result.txt"
+    artifact_paths:
+      - result.txt
 
   - label: "Annotate result"
-    command: buildkite-agent annotate --style "info" --context "sentence" "$(cat result.txt)"
+    commands:
+      - buildkite-agent artifact download result.txt .
+      - buildkite-agent annotate --style "info" --context "sentence" "$(cat result.txt)"
