@@ -1,5 +1,6 @@
 steps:
   - label: "Run Python in Docker"
+    key: "sentence-step"
     plugins:
       docker#v3.8.0:
         image: "python:3.13"
@@ -11,6 +12,19 @@ steps:
       - result.txt
 
   - label: "Annotate result"
+    depends_on: "sentence-step"
     commands:
       - buildkite-agent artifact download result.txt .
       - buildkite-agent annotate --style "info" --context "sentence" "$(cat result.txt)"
+
+  - label: "Run paragraph if sentence passes"
+    depends_on: "sentence-step"
+    plugins:
+      docker#v3.8.0:
+        image: "python:3.13"
+        command:
+          - "sh"
+          - "-c"
+          - "pip install . && python -c 'from loremipsum import paragraph; print(paragraph(max_char=100))'"
+    artifact_paths:
+      - result.txt
